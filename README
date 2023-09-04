@@ -1,1 +1,5 @@
 - choicegroup Ordner kompremieren .zip und per Drag&Drop Installieren.
+
+Anpassung:
+    Ablaufmodus hinzugefügt. Ist über die Settings der erstellten Choicegroup Aktivität im Kurs aktivierbar.
+    Ablaufmodus entfernt den User aus sämtlichen Gruppen im Kurs, bevor er die gewünschte Gruppe beitritt. (Only 1 Group)  
