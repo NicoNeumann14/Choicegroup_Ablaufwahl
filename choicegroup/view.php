@@ -160,7 +160,7 @@ if (data_submitted() && is_enrolled($context, null, 'mod/choicegroup:choose') &&
                 for ($iso = 0; $iso < $nogic; $iso++) {
                     $nogicc = count($groupsss[$iso]);
                     for ($isoo = 0; $isoo < $nogicc; $isoo++){
-                        groups_remove_member($groupsss[$iso][$isoo]);
+                        groups_remove_member($groupsss[$iso][$isoo],$USER->id);
                     }        
                 }
                 // Save form Data
