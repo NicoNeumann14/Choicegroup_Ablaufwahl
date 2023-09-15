@@ -69,6 +69,8 @@ class mod_choicegroup_mod_form extends moodleform_mod
             $groups[$group->id]->id = $group->id;
         }
 
+        
+
         if (count($db_groups) < 1) {
             $a = new stdClass();
             $a->linkgroups = $CFG->wwwroot . '/group/index.php?id=' . $COURSE->id;
@@ -118,11 +120,44 @@ class mod_choicegroup_mod_form extends moodleform_mod
         $mform->disabledIf('publish', 'showresults', 'eq', 0);
 
         $mform->addElement('selectyesno', 'allowupdate', get_string("allowupdate", "choicegroup"));
+        
+        
+        ## ############################# Anpassungen Ablaufwahl  ##################################
         $mform->addElement('selectyesno', 'ablaufwahl', get_string("ablaufwahl", "choicegroup"));
+        $mform->addHelpButton('ablaufwahl', 'ablaufwahl', 'choicegroup');
+        
+        ## pro Gruppe eine Textarea für den Directlink
+        foreach ($groups as $group) {
+            $mform->addElement('textarea', 'redirectlink_'.$group->id, get_string('redirectlink', 'choicegroup').' für Gruppe: '.$group->name);
+            
+            $mform->setType('redirectlink_'.$group->id, PARAM_TEXT);
+            $mform->setDefault('redirectlink_'.$group->id,new moodle_url('/course/view.php',array('id' => $COURSE->id)));
+            $mform->addHelpButton('redirectlink_'.$group->id, 'redirectlink', 'choicegroup');
+            $mform->hideIf('redirectlink_'.$group->id,'ablaufwahl', 'eq', 0 );
+        }
+        
+        ## Ablaufwahl --> sind wir im edit mode, default link mit link aus Datenbank austauschen.
+        if (isset($this->_instance) && $this->_instance != '') {
+            // this is presumably edit mode, try to fill in the data for javascript
+            $cm = $PAGE->cm;
+            $choicegroupID = $cm->instance; 
+            $redirectss = array();
+            if ($db_groups = $DB->get_records('choicegroup_redirects', array('choicegroupid' => $choicegroupID))){
+                foreach ($db_groups as $links) {
+                    $mform->setDefault('redirectlink_' . $links->groupid, $links->redirectlink);
+                }
+            }
+            
+        } else {
+            
+        }
+
+        ################################################################################################
 
         $mform->addElement('selectyesno', 'showunanswered', get_string("showunanswered", "choicegroup"));
 
         $mform->addElement('selectyesno', 'onlyactive', get_string('onlyactive', 'choicegroup'));
+
         $mform->setDefault('onlyactive', 0);
 
         $menuoptions = array();
@@ -138,7 +173,6 @@ class mod_choicegroup_mod_form extends moodleform_mod
         $mform->setDefault('generallimitation', 0);
         $mform->addElement('button', 'setlimit', get_string('applytoallgroups', 'choicegroup'));
         $mform->disabledIf('setlimit', 'limitanswers', 'neq', 1);
-
 
         // -------------------------
         // Generate the groups section of the form
@@ -242,9 +276,7 @@ class mod_choicegroup_mod_form extends moodleform_mod
 
         // -------------------------
         // Go on the with the remainder of the form
-        // -------------------------
-
-
+        // ------------------------
         //-------------------------------------------------------------------------------
         $mform->addElement('header', 'timerestricthdr', get_string('timerestrict', 'choicegroup'));
         $mform->addElement('checkbox', 'timerestrict', get_string('timerestrict', 'choicegroup'));
@@ -259,6 +291,7 @@ class mod_choicegroup_mod_form extends moodleform_mod
         $this->standard_coursemodule_elements();
         //-------------------------------------------------------------------------------
         $this->add_action_buttons();
+        
     }
 
     function data_preprocessing(&$default_values)

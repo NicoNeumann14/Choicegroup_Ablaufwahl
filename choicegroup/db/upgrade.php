@@ -92,9 +92,48 @@ function xmldb_choicegroup_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
+        
         // Group choice savepoint reached.
         upgrade_mod_savepoint(true, 2021080500, 'choicegroup');
+    }
+
+    
+    if ($oldversion < 2023091000) {
+
+        // Define field onlyactive to be added to choicegroup.
+        $table = new xmldb_table('choicegroup');
+        $field = new xmldb_field('ablaufwahl', XMLDB_TYPE_INTEGER, '2', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'onlyactive');
+        
+        // Conditionally launch add field onlyactive.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        // Define new Table and Fields for Redirectlinks
+        $tablecr = new xmldb_table('choicegroup_redirects');
+        $fieldid = new xmldb_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null, null);
+        $fieldcgid = new xmldb_field('choicegroupid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'id');
+        $fieldgid = new xmldb_field('groupid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'choicegroupid');
+        $fieldrelink = new xmldb_field('redirectlink', XMLDB_TYPE_TEXT, 'small', null, XMLDB_NOTNULL, null, 'www.google.de', 'groupid');
+
+        if(!$dbman->table_exists($tablecr)){
+            $tablecr->addField($fieldid);
+            $tablecr->addField($fieldcgid);
+            $tablecr->addField($fieldgid);
+            $tablecr->addField($fieldrelink);
+
+
+            $keyid = new xmldb_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $keycgid = new xmldb_key('choicegroupid', XMLDB_KEY_FOREIGN, ['choicegroupid'], 'choicegroup', ['id']);
+
+            $tablecr->addKey($keyid);
+            $tablecr->addKey($keycgid);
+
+            $dbman->create_table($tablecr);
+        }
+        
+        // Group choice savepoint reached.
+        upgrade_mod_savepoint(true, 2023091000, 'choicegroup');
     }
 
     return true;

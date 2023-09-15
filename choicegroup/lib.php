@@ -199,8 +199,10 @@ function choicegroup_add_instance($choicegroup) {
     //insert answers
     $choicegroup->id = $DB->insert_record("choicegroup", $choicegroup);
     
-    // deserialize the selected groups
     
+
+    // deserialize the selected groups
+
     $groupIDs = explode(';', $choicegroup->serializedselectedgroups);
     $groupIDs = array_diff( $groupIDs, array( '' ) );
     
@@ -218,12 +220,31 @@ function choicegroup_add_instance($choicegroup) {
             $DB->insert_record("choicegroup_options", $option);
         }	
     }
-
+    
+    ## Die übergeben redirectlink_ pro Gruppe aufnehmen und in Datenbankspeichern
+    if($choicegroup->ablaufwahl == 1){
+        foreach ($groupIDs as $groupID) {
+            $groupID = trim($groupID);
+            if (isset($groupID) && $groupID != '') {
+                $redirectLink = new stdClass();
+                $redirectLink->groupid = $groupID;
+                $redirectLink->choicegroupid = $choicegroup->id;
+                $propertys = 'redirectlink_' . $groupID;
+                if (isset($choicegroup->$propertys)) {
+                    $redirectLink->redirectlink = $choicegroup->$propertys;
+                }
+                $DB->insert_record("choicegroup_redirects", $redirectLink);
+            }
+             
+        }
+    }
+    
+    
     if (class_exists('\core_completion\api')) {
         $completiontimeexpected = !empty($choicegroup->completionexpected) ? $choicegroup->completionexpected : null;
         \core_completion\api::update_completion_date_event($choicegroup->coursemodule, 'choicegroup', $choicegroup->id, $completiontimeexpected);
     }
-
+    
 
     return $choicegroup->id;
 }
@@ -258,6 +279,43 @@ function choicegroup_update_instance($choicegroup) {
     
     $groupIDs = explode(';', $choicegroup->serializedselectedgroups);
     $groupIDs = array_diff( $groupIDs, array( '' ) );
+    
+    ### Ablaufwahl --> Redirects updaten.
+    if($choicegroup->ablaufwahl == 1){
+        // If Groupchoice was created without ablaufwahl. First insert Records
+        if (!($preExistingRedirects = $DB->get_records("choicegroup_redirects", array("choicegroupid" => $choicegroup->id), "id"))) {
+            foreach ($groupIDs as $groupID) {
+                $groupID = trim($groupID);
+                if (isset($groupID) && $groupID != '') {
+                    $redirectLink = new stdClass();
+                    $redirectLink->groupid = $groupID;
+                    $redirectLink->choicegroupid = $choicegroup->id;
+                    $propertys = 'redirectlink_' . $groupID;
+                    if (isset($choicegroup->$propertys)) {
+                        $redirectLink->redirectlink = $choicegroup->$propertys;
+                    }
+                    $DB->insert_record("choicegroup_redirects", $redirectLink);
+                }
+                 
+            }
+            
+        }else {
+            foreach ($preExistingRedirects as $redirects){
+                $redirectLink = new stdClass();
+                $redirectLink->groupid = $redirects->groupid;
+                $redirectLink->choicegroupid = $choicegroup->id;
+                $redirectLink->id = $redirects->id;
+                $propertys = 'redirectlink_' . $redirects->groupid;
+                if (isset($choicegroup->$propertys)) {
+                    $redirectLink->redirectlink = $choicegroup->$propertys;
+                    $DB->update_record("choicegroup_redirects", $redirectLink);
+                }
+            }
+        }
+        
+    }
+    
+    
 
     // prepare pre-existing selected groups from database
     
@@ -413,7 +471,8 @@ function choicegroup_user_submit_response($formanswer, $choicegroup, $userid, $c
         $currentgroup = $DB->get_record('groups', array('id' => $current->id), 'id,name', MUST_EXIST);
     }
     $selectedgroup = $DB->get_record('groups', array('id' => $selected_option->groupid), 'id,name', MUST_EXIST);
-
+  
+    
     $countanswers=0;
     groups_add_member($selected_option->groupid, $userid);
     $groupmember_added = true;    
@@ -460,6 +519,7 @@ function choicegroup_user_submit_response($formanswer, $choicegroup, $userid, $c
             print_error('choicegroupfull', 'choicegroup', $CFG->wwwroot.'/mod/choicegroup/view.php?id='.$cm->id);
         }
     }
+    
 }
 
 /**
@@ -752,6 +812,11 @@ function choicegroup_delete_instance($id) {
 
     $result = true;
 
+    // Ablaufwahl --> delte Records
+    if (! $DB->delete_records("choicegroup_redirects", array("choicegroupid"=>"$choicegroup->id"))) {
+        $result = false;
+    }
+
     if (! $DB->delete_records("choicegroup_options", array("choicegroupid"=>"$choicegroup->id"))) {
         $result = false;
     }
@@ -760,6 +825,7 @@ function choicegroup_delete_instance($id) {
         $result = false;
     }
 
+    
     return $result;
 }
 
@@ -836,20 +902,60 @@ function choicegroup_get_choicegroup($choicegroupid) {
             $grpfilter = "AND grp_o.groupid = :groupid";
         }
 
-        $sql = "SELECT grp_m.id grpmemberid, grp_m.userid, grp_o.id, grp_o.groupid, grp_o.maxanswers
+        ## Ablaufwahlmodus --> if enable add innerJoin choicegroup_redirects.
+        if($choicegroup->ablaufwahl == 1){
+            $sql = "SELECT grp_m.id grpmemberid, grp_m.userid, grp_o.id, grp_o.groupid, grp_o.maxanswers, grp_r.redirectlink
+                 FROM {groups} grp
+                 INNER JOIN {choicegroup_options} grp_o on grp.id = grp_o.groupid
+                 LEFT JOIN {groups_members} grp_m on grp_m.groupid = grp_o.groupid
+                 INNER JOIN {choicegroup_redirects} grp_r on grp_o.choicegroupid = grp_r.choicegroupid 
+                 WHERE grp_o.choicegroupid = :choicegroupid $grpfilter
+                 ORDER BY $sortcolumn ASC";
+        }else{
+            $sql = "SELECT grp_m.id grpmemberid, grp_m.userid, grp_o.id, grp_o.groupid, grp_o.maxanswers
                  FROM {groups} grp
                  INNER JOIN {choicegroup_options} grp_o on grp.id = grp_o.groupid
                  LEFT JOIN {groups_members} grp_m on grp_m.groupid = grp_o.groupid
                  WHERE grp_o.choicegroupid = :choicegroupid $grpfilter
                  ORDER BY $sortcolumn ASC";
-
+        }
         $rs = $DB->get_recordset_sql($sql, $params);
 
-        foreach ($rs as $option) {
-            $choicegroup->option[$option->id] = $option->groupid;
-            $choicegroup->grpmemberid[$option->grpmemberid] = array($option->groupid, $option->userid);
-            $choicegroup->maxanswers[$option->id] = $option->maxanswers;
+       
+        ## Ablaufmodus add innerjoin redirects for redirektlink spalten. Mit $oldString verhinder ich das wir die falschen Links in die Propertys schreiben.
+        ## noch fixen wenn die Redirects gleich sind....
+        if($choicegroup->ablaufwahl == 1){
+            $usedIDS = [];
+            $steps = 0;
+            $round = 0;
+            foreach ($rs as $option) {
+                $choicegroup->option[$option->id] = $option->groupid;
+                $choicegroup->grpmemberid[$option->grpmemberid] = array($option->groupid, $option->userid);
+                $choicegroup->maxanswers[$option->id] = $option->maxanswers;
+                
+                ### Die redirectlink_ pro Gruppe aufnehmen aber jeweils nur 1 mal.
+                $propertys = 'redirectlink_' . $option->groupid;
+                if(!isset($choicegroup->$propertys) && !in_array($option->groupid,$usedIDS) && $steps == 0){
+                    $choicegroup->$propertys = $option->redirectlink;
+                    $usedIDS[] = $option->groupid;
+                    $round = $round + 1;
+                    $steps = $round;
+                }
+                if(!in_array($option->groupid,$usedIDS)){
+                    $steps = $steps - 1;
+                }
+                
+            }
+            
+            
+        }else{
+            foreach ($rs as $option) {
+                $choicegroup->option[$option->id] = $option->groupid;
+                $choicegroup->grpmemberid[$option->grpmemberid] = array($option->groupid, $option->userid);
+                $choicegroup->maxanswers[$option->id] = $option->maxanswers;
+            }
         }
+        
 
         $rs->close();
 

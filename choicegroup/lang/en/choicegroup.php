@@ -23,9 +23,14 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+
+$string['ablaufwahl'] = 'Activate Ablaufwahl mode';
+$string['ablaufwahl_help'] = 'Use direct redirect after group selection';
+$string['redirectlink'] = 'Redirect Link';
+$string['redirectlink_help'] = 'Link must be complete! e.g. https://www.google.de, link to other courses e.g. https://moodle.xxxx.de/course/view.php?id=xx';
+ 
 $string['addmorechoices'] = 'Add more choices';
 $string['allowupdate'] = 'Allow choice to be updated';
-$string['ablaufwahl'] = 'Enable Ablaufwahl Modus';
 $string['answered'] = 'Answered';
 $string['completionsubmit'] = 'Show as complete when user makes a choice';
 $string['completiondetail:submit'] = 'Choose a group';

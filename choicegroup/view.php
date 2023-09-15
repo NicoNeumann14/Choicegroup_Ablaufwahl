@@ -152,7 +152,7 @@ if (data_submitted() && is_enrolled($context, null, 'mod/choicegroup:choose') &&
             redirect(new moodle_url('/mod/choicegroup/view.php',
                 array('id' => $cm->id, 'notify' => 'mustchooseone', 'sesskey' => sesskey())));
         } else {
-            ## Checken ob Ablaufwahl modus Enable, if enable remove all groups bevore join new one.
+            ###### Ablaufwahl --> Checken if enable remove all groups bevore join new one.################
             if ($choicegroup->ablaufwahl == 1){
                 $groupsss = groups_get_user_groups($course->id,$USER->id);
                 $nogic = count($groupsss);
@@ -163,10 +163,22 @@ if (data_submitted() && is_enrolled($context, null, 'mod/choicegroup:choose') &&
                         groups_remove_member($groupsss[$iso][$isoo]);
                     }        
                 }
+                // Save form Data
                 choicegroup_user_submit_response($answer, $choicegroup, $USER->id, $course, $cm);
-                redirect(new moodle_url('/course/view.php',
-                    array('id' => $course->id, 'notify' => 'ablaufwahlsaved', 'sesskey' => sesskey())));
-
+                // Get the current answer group id.
+                $current = choicegroup_get_user_answer($choicegroup, $USER);
+                $params = 'redirectlink_'.$current->id;
+                $linkString = $choicegroup->$params;
+                
+                //Check if Redirect contains wwww
+                if (strpos($linkString, 'www') !== false){
+                    redirect(new moodle_url($linkString));
+                }else {
+                    // if Redirect without www than add sesskey
+                    redirect(new moodle_url($linkString, array('sesskey' => sesskey())));
+                }
+                
+                #######################################################################
             }else {
 
                 choicegroup_user_submit_response($answer, $choicegroup, $USER->id, $course, $cm);
@@ -322,6 +334,7 @@ else if (!$choicegroupformshown) {
     echo $OUTPUT->box(get_string('noresultsviewable', 'choicegroup'));
 }
 
+#echo var_dump($choicegroup);
 
 echo $OUTPUT->footer();
 
