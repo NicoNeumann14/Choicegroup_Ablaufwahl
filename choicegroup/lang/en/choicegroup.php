@@ -25,10 +25,14 @@
 
 
 $string['ablaufwahl'] = 'Activate Ablaufwahl mode';
-$string['ablaufwahl_help'] = 'Use direct redirect after group selection';
+$string['ablaufwahl_help'] = 'Only one Group at time. Instant redirect after group selection. Customized redirect and table header names';
 $string['redirectlink'] = 'Redirect Link';
 $string['redirectlink_help'] = 'Link must be complete! e.g. https://www.google.de, link to other courses e.g. https://moodle.xxxx.de/course/view.php?id=xx';
- 
+$string['th_one'] = 'Alternativer Titel für Gruppenwahl in der Aktivitätsansicht';
+$string['th_two'] = 'Alternativer Titel für Gruppe in der Aktivitätsansicht';
+$string['th_thre'] = 'Alternativer Titel für Gruppenmitglieder in der Aktivitätsansicht';
+$string['th_one_help'] = 'Edit the table header names';
+
 $string['addmorechoices'] = 'Add more choices';
 $string['allowupdate'] = 'Allow choice to be updated';
 $string['answered'] = 'Answered';

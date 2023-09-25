@@ -98,15 +98,27 @@ function xmldb_choicegroup_upgrade($oldversion) {
     }
 
     
-    if ($oldversion < 2023091000) {
+    if ($oldversion < 2023092000) {
 
         // Define field onlyactive to be added to choicegroup.
         $table = new xmldb_table('choicegroup');
         $field = new xmldb_field('ablaufwahl', XMLDB_TYPE_INTEGER, '2', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'onlyactive');
-        
+        $field2 = new xmldb_field('th_one', XMLDB_TYPE_CHAR, '255',  null, XMLDB_NOTNULL, null, 'Gruppenwahl', 'ablaufwahl');
+        $field3 = new xmldb_field('th_two', XMLDB_TYPE_CHAR, '255',  null, XMLDB_NOTNULL, null, 'Gruppe', 'th_one');
+        $field4 = new xmldb_field('th_thre', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, 'Gruppenmitglieder', 'th_two');
+
         // Conditionally launch add field onlyactive.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
+        }
+        if (!$dbman->field_exists($table, $field2)) {
+            $dbman->add_field($table, $field2);
+        }
+        if (!$dbman->field_exists($table, $field3)) {
+            $dbman->add_field($table, $field3);
+        }
+        if (!$dbman->field_exists($table, $field4)) {
+            $dbman->add_field($table, $field4);
         }
         
         // Define new Table and Fields for Redirectlinks
@@ -133,7 +145,7 @@ function xmldb_choicegroup_upgrade($oldversion) {
         }
         
         // Group choice savepoint reached.
-        upgrade_mod_savepoint(true, 2023091000, 'choicegroup');
+        upgrade_mod_savepoint(true, 2023092000, 'choicegroup');
     }
 
     return true;

@@ -25,7 +25,10 @@
         <FIELD NAME="completionsubmit" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" COMMENT="If this field is set to 1, then the activity will be automatically marked as 'complete' once the user submits their choicegroup." PREVIOUS="timemodified" NEXT="sortgroupsby"/>
         <FIELD NAME="sortgroupsby" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" COMMENT="Column used to sort groups." PREVIOUS="completionsubmit" NEXT="onlyactive"/>
         <FIELD NAME="onlyactive" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" COMMENT="If this field is set to 1, users with expired or suspended enrolments will be filtered out of response data." PREVIOUS="sortgroupsby" NEXT="ablaufwahl"/>
-        <FIELD NAME="ablaufwahl" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Show if Ablaufwahl Modus is enabled." PREVIOUS="onlyactive"/>
+        <FIELD NAME="ablaufwahl" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Show if Ablaufwahl Modus is enabled." PREVIOUS="onlyactive" NEXT='th_one'/>
+        <FIELD NAME="th_one" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="Gruppenwahl" SEQUENCE="false" PREVIOUS="ablaufwahl" NEXT="th_two"/>
+        <FIELD NAME="th_two" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="Gruppe" SEQUENCE="false" PREVIOUS="th_one" NEXT="th_thre"/>
+        <FIELD NAME="th_thre" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="Gruppenmitglieder" SEQUENCE="false" PREVIOUS="th_two"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

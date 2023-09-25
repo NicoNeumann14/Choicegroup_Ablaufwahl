@@ -46,7 +46,7 @@ class mod_choicegroup_renderer extends plugin_renderer_base {
      *
      * @return string
      */
-    public function display_options($options, $coursemoduleid, $vertical = true, $publish = false, $limitanswers = false, $showresults = false, $current = false, $choicegroupopen = false, $disabled = false, $multipleenrollmentspossible = false, $onlyactive = false) {
+    public function display_options($options, $coursemoduleid, $vertical = true, $publish = false, $limitanswers = false, $showresults = false, $current = false, $choicegroupopen = false, $disabled = false, $multipleenrollmentspossible = false, $onlyactive = false, $ablaufwahl = false, $th_one = false, $th_two = false, $th_thre =false) {
         global $DB, $PAGE, $choicegroup_groups;
 
         $target = new moodle_url('/mod/choicegroup/view.php');
@@ -57,9 +57,17 @@ class mod_choicegroup_renderer extends plugin_renderer_base {
         $html .= html_writer::start_tag('table', array('class'=>'choicegroups' ));
 
         $html .= html_writer::start_tag('tr');
-        $html .= html_writer::tag('th', get_string('choice', 'choicegroup'), array('class'=>'width10'));
-
-        $group = get_string('group').' ';
+        
+        # hier den für Gruppenwahl & Gruppe 
+        if ($ablaufwahl == 1){
+            $html .= html_writer::tag('th', $th_one, array('class'=>'width10'));
+            $group = $th_two.' ';
+        }else{
+            $html .= html_writer::tag('th', get_string('choice', 'choicegroup'), array('class'=>'width10'));
+            $group = get_string('group').' ';
+        }
+        
+       
         $group .= html_writer::tag('a', get_string('showdescription', 'choicegroup'), array('role' => 'button','class' => 'choicegroup-descriptiondisplay choicegroup-descriptionshow btn btn-secondary ml-1', 'href' => '#'));
         $html .= html_writer::tag('th', $group, array('class'=>'width40'));
 
@@ -70,7 +78,12 @@ class mod_choicegroup_renderer extends plugin_renderer_base {
                 $html .= html_writer::tag('th', get_string('members/max', 'choicegroup'), array('class'=>'width10'));
             }
             else {
-                $html .= html_writer::tag('th', get_string('members/', 'choicegroup'), array('class'=>'width10'));
+                if ($ablaufwahl == 1){
+                    $html .= html_writer::tag('th', $th_thre, array('class'=>'width10'));
+                }else{
+                    $html .= html_writer::tag('th', get_string('members/', 'choicegroup'), array('class'=>'width10'));
+                }
+                #hier der neue für Gruppenmitglieder members/
             }
             if ($publish == CHOICEGROUP_PUBLISH_NAMES) {
                 $membersdisplay_html = html_writer::tag('a', get_string('showgroupmembers','mod_choicegroup'), array('role' => 'button','class' => 'choicegroup-memberdisplay choicegroup-membershow btn btn-secondary ml-1', 'href' => '#'));

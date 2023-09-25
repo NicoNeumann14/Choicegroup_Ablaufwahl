@@ -125,7 +125,22 @@ class mod_choicegroup_mod_form extends moodleform_mod
         ## ############################# Anpassungen Ablaufwahl  ##################################
         $mform->addElement('selectyesno', 'ablaufwahl', get_string("ablaufwahl", "choicegroup"));
         $mform->addHelpButton('ablaufwahl', 'ablaufwahl', 'choicegroup');
-        
+        $mform->addElement('text', 'th_one', get_string('th_one', 'choicegroup'), array('size' => '64'));
+        $mform->setType('th_one', PARAM_TEXT);
+        $mform->setDefault('th_one',get_string('choice', 'choicegroup'));
+        $mform->addHelpButton('th_one', 'th_one', 'choicegroup');
+        $mform->hideIf('th_one','ablaufwahl', 'eq', 0 );
+        $mform->addElement('text', 'th_two', get_string('th_two', 'choicegroup'), array('size' => '64'));
+        $mform->setType('th_two', PARAM_TEXT);
+        $mform->setDefault('th_two',get_string('group'));
+        $mform->addHelpButton('th_two', 'th_one', 'choicegroup');
+        $mform->hideIf('th_two','ablaufwahl', 'eq', 0 );
+        $mform->addElement('text', 'th_thre', get_string('th_thre', 'choicegroup'), array('size' => '64'));
+        $mform->setType('th_thre', PARAM_TEXT);
+        $mform->setDefault('th_thre',get_string('members/', 'choicegroup'));
+        $mform->addHelpButton('th_thre', 'th_one', 'choicegroup');
+        $mform->hideIf('th_thre','ablaufwahl', 'eq', 0 );
+
         ## pro Gruppe eine Textarea für den Directlink
         foreach ($groups as $group) {
             $mform->addElement('textarea', 'redirectlink_'.$group->id, get_string('redirectlink', 'choicegroup').' für Gruppe: '.$group->name);
