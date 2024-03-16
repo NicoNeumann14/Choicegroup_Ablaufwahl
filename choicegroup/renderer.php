@@ -58,10 +58,12 @@ class mod_choicegroup_renderer extends plugin_renderer_base {
 
         $html .= html_writer::start_tag('tr');
         
-        # hier den für Gruppenwahl & Gruppe 
+        // hier den für Gruppenwahl & Gruppe 
         if ($ablaufwahl == 1){
             $html .= html_writer::tag('th', $th_one, array('class'=>'width10'));
             $group = $th_two.' ';
+            // Ablaufwahl ohne Gruppen Check(1/3)
+            $disabled = false;
         }else{
             $html .= html_writer::tag('th', get_string('choice', 'choicegroup'), array('class'=>'width10'));
             $group = get_string('group').' ';
@@ -152,6 +154,12 @@ class mod_choicegroup_renderer extends plugin_renderer_base {
             }
             $attributes = (array) $option->attributes;
             $attributes['id'] = 'choiceid_' . $option->attributes->value;
+           
+            //Ablaufwahl ohne Gruppen Check (2/3)
+            if($ablaufwahl == 1 && array_key_exists('checked', $attributes)){
+                unset($attributes['checked']);
+            }
+
             $html .= html_writer::empty_tag('input', $attributes);
             $html .= html_writer::end_tag('td');
             $html .= html_writer::tag('td', $labeltext);
@@ -178,7 +186,12 @@ class mod_choicegroup_renderer extends plugin_renderer_base {
         $html .= html_writer::tag('div', '', array('class'=>'clearfloat'));
         $html .= html_writer::empty_tag('input', array('type'=>'hidden', 'name'=>'sesskey', 'value'=>sesskey()));
         $html .= html_writer::empty_tag('input', array('type'=>'hidden', 'name'=>'id', 'value'=>$coursemoduleid));
-
+       
+        //Ablaufwahl ohne Gruppen Check (3/3)
+        if($ablaufwahl == 1){
+            $initiallyHideSubmitButton = false;
+        }
+       
         if (!empty($options['hascapability']) && ($options['hascapability'])) {
             if ($availableoption < 1) {
                $html .= html_writer::tag('p', get_string('choicegroupfull', 'choicegroup'));

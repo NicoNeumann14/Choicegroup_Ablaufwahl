@@ -160,13 +160,15 @@ if (data_submitted() && is_enrolled($context, null, 'mod/choicegroup:choose') &&
                 for ($iso = 0; $iso < $nogic; $iso++) {
                     $nogicc = count($groupsss[$iso]);
                     for ($isoo = 0; $isoo < $nogicc; $isoo++){
-                        groups_remove_member($groupsss[$iso][$isoo],$USER->id);
+                       if(in_array($groupsss[$iso][$isoo],$choicegroup->option)){
+                            groups_remove_member($groupsss[$iso][$isoo],$USER->id);
+                       }
                     }        
                 }
                 // Save form Data
                 choicegroup_user_submit_response($answer, $choicegroup, $USER->id, $course, $cm);
                 // Get the current answer group id.
-                $current = choicegroup_get_user_answer($choicegroup, $USER);
+                $current = choicegroup_get_user_answer($choicegroup, $USER, false, true);
                 $params = 'redirectlink_'.$current->id;
                 $linkString = $choicegroup->$params;
                 

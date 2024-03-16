@@ -300,17 +300,32 @@ function choicegroup_update_instance($choicegroup) {
             }
             
         }else {
-            foreach ($preExistingRedirects as $redirects){
-                $redirectLink = new stdClass();
-                $redirectLink->groupid = $redirects->groupid;
-                $redirectLink->choicegroupid = $choicegroup->id;
-                $redirectLink->id = $redirects->id;
-                $propertys = 'redirectlink_' . $redirects->groupid;
-                if (isset($choicegroup->$propertys)) {
-                    $redirectLink->redirectlink = $choicegroup->$propertys;
-                    $DB->update_record("choicegroup_redirects", $redirectLink);
+
+            foreach ($groupIDs as $groupID) {
+                $groupID = trim($groupID);
+                if (isset($groupID) && $groupID != '') {
+                    $redirectLink = new stdClass();
+                    $redirectLink->groupid = $groupID;
+                    $redirectLink->choicegroupid = $choicegroup->id;
+                    $propertys = 'redirectlink_' . $groupID;
+                    if (isset($choicegroup->$propertys)) {
+                        $redirectLink->redirectlink = $choicegroup->$propertys;
+                    }
+                    foreach ($preExistingRedirects as $key => $preExistingRedirect) {
+                        if ($redirectLink->groupid == $preExistingRedirect->groupid) {
+                            // match found, so instead of creating a new record we should merely update a pre-existing record
+                            $redirectLink->id = $preExistingRedirect->id;
+                            $DB->update_record("choicegroup_redirects", $redirectLink);
+                            // remove the element from the array to not deal with it later
+                            unset($preExistingRedirects[$key]);
+                            continue 2; // continue the big loop
+                        }
+                    }
+                    $DB->insert_record("choicegroup_redirects", $redirectLink);	
                 }
+
             }
+
         }
         
     }
