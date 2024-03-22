@@ -98,7 +98,7 @@ function xmldb_choicegroup_upgrade($oldversion) {
     }
 
     
-    if ($oldversion < 2024031500) {
+    if ($oldversion < 2024010399) {
 
         // Define field onlyactive to be added to choicegroup.
         $table = new xmldb_table('choicegroup');
@@ -145,7 +145,7 @@ function xmldb_choicegroup_upgrade($oldversion) {
         }
         
         // Group choice savepoint reached.
-        upgrade_mod_savepoint(true, 2024031500, 'choicegroup');
+        upgrade_mod_savepoint(true, 2024010399, 'choicegroup');
     }
 
     return true;

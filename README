@@ -1,6 +1,3 @@
-Der Programmcode ist in dem choicegroup Ordner. 
-Bei Anpassungen den choicegroup Ordner zu einer .zip Datei komprimieren und anschließend über Drag&Drop auf Moodle installieren.
-
 Anpassung:
     Ablaufmodus hinzugefügt. Ist über die Settings der erstellten Choicegroup Aktivität im Kurs aktivierbar.
     Redriectlink textArea pro Gruppe in dem Kurs, zu den Settings hinzugefügt, um den Redirectlink anpassen zu können.
