@@ -1,5 +1,6 @@
 Anpassung:
-    Ablaufmodus hinzugefügt. Ist über die Settings der erstellten Choicegroup Aktivität im Kurs aktivierbar.
+    Ablaufmodus hinzugefügt. Der Modus ist über die Settings der erstellten Choicegroup Aktivität im Kurs aktivierbar.
     Redriectlink textArea pro Gruppe in dem Kurs, zu den Settings hinzugefügt, um den Redirectlink anpassen zu können.
     Choicegroup_redirects Datenbanktabelle angelegt, damit die angepassten Redirectlinks abspeichern werden können.
-    Ablaufmodus entfernt den User aus sämtlichen Gruppen im Kurs, bevor er die gewünschte Gruppe beitritt. (Only 1 Group) und schickt den User zu dem definierten Redirectlink.  
+    Ablaufmodus entfernt den User aus allen zur Auswahl stehenden Gruppen in der Aktivität, bevor er die gewünschte Gruppe beitritt. 
+    Nach dem Beitritt wird der User zu dem definierten Redirectlink geschickt.
